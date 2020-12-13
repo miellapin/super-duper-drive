@@ -7,14 +7,20 @@ import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Mapper
+@Repository
 public interface FileMapper {
 
-    @Select("SELECT * FROM NOTES WHERE fileId = #{fileId}")
-    public Files findFile(Integer fileId);
+    @Select("SELECT * FROM FILES WHERE fileId = #{fileId}")
+    Files findFile(Integer fileId);
 
-    @Insert("INSERT INTO NOTES (fileId, filename, contenttype, filesize, userid, filedata) "
-            +"VALUES(#{fileId}, #{filename}, #{contenttype}, #{filesize}, #{userid}, #{filedata})")
+    @Insert("INSERT INTO FILES (filename, contenttype, filesize, userid, filedata) "
+            +"VALUES(#{filename}, #{contenttype}, #{filesize}, #{userid}, #{filedata})")
     @Options(useGeneratedKeys = true, keyProperty = "fileId")
-    public Integer addFile(Files file);
+    Integer addFiles(Files files);
+
+    @Select("SELECT * FROM FILES")
+    List<Files> findAllFiles();
 }
