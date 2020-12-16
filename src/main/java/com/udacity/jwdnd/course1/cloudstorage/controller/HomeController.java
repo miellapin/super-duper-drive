@@ -58,9 +58,13 @@ public class HomeController {
             else {
                 model.addAttribute("uploadFileError", errorMessage);
             }
+            List<Files> filesList = fileMapper.findAllFiles();
+            model.addAttribute("filesList", filesList);
             return "home";
         }
         errorMessage = "Files with identical names cannot be uploaded!";
+        List<Files> filesList = fileMapper.findAllFiles();
+        model.addAttribute("filesList", filesList);
         model.addAttribute("uploadFileSuccess", false);
         model.addAttribute("uploadFileError", errorMessage);
         return "home";

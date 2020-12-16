@@ -22,7 +22,7 @@ public class FileService {
     public boolean checkFileNames(MultipartFile file) {
         List<Files> uploadedFiles = fileMapper.findAllFiles();
         for(Files selectedFile : uploadedFiles) {
-            if(selectedFile.getFilename().equalsIgnoreCase(file.getName()))
+            if(selectedFile.getFilename().equalsIgnoreCase(file.getOriginalFilename()))
                 return false;
         }
         return true;
