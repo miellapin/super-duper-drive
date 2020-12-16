@@ -31,6 +31,9 @@
                                     <div id="success-msg" th:if="${uploadFileSuccess}" class="alert alert-dark col-sm-12">
                                         File has been successfully uploaded!
                                     </div>
+                                    <div id="success-msg-delete" th:if="${deleteSuccess}" class="alert alert-dark col-sm-12">
+                                        File has been successfully deleted!
+                                    </div>
                                     <div id="error-msg" th:if="${uploadFileError}" class="alert alert-danger col-sm-12">
                                         <span th:text="${uploadFileError}"></span>
                                     </div>
@@ -55,12 +58,12 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="chatMessage : ${filesList}">
+                                    <tr th:each="file : ${filesList}">
                                         <td>
-                                            <a target="_blank" class="btn btn-success">View</a>
-                                            <a  class="btn btn-danger">Delete</a>
+                                            <a target="_blank" class="btn btn-success" th:href="@{/home/view/{id}(id = ${file.fileId})}">View</a>
+                                            <a class="btn btn-danger" th:href="@{/home/delete/{id}(id = ${file.fileId})}">Delete</a>
                                         </td>
-                                        <th scope="row" th:unless="${noFiles}" th:text="${chatMessage.filename}">There's no file added yet!</th>
+                                        <th scope="row" th:unless="${noFiles}" th:text="${file.filename}">There's no file added yet!</th>
                                         <br/>
                                     </tr>
                                 </tbody>

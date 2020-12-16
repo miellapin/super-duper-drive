@@ -5,17 +5,18 @@ import com.udacity.jwdnd.course1.cloudstorage.entity.Users;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.FileMapper;
 import com.udacity.jwdnd.course1.cloudstorage.services.FileService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
+import org.apache.commons.io.IOUtils;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
+import java.util.logging.Logger;
 
 @Controller
 @RequestMapping("/home")
@@ -67,6 +68,27 @@ public class HomeController {
         model.addAttribute("filesList", filesList);
         model.addAttribute("uploadFileSuccess", false);
         model.addAttribute("uploadFileError", errorMessage);
+        return "home";
+    }
+
+    @GetMapping(value = "/view/{fileId}",
+            produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public @ResponseBody byte[] getFile(@PathVariable("fileId") Integer fileId) throws IOException{
+        try {
+            Files downloadedFile = fileMapper.findFile(fileId);
+            return IOUtils.toByteArray(downloadedFile.getFiledata());
+        }
+        catch (IOException e) {
+            throw new RuntimeException("IOError writing file to output stream");
+        }
+    }
+
+    @GetMapping(value = "/delete/{fileId}")
+    public String deleteFile(@PathVariable("fileId") Integer fileId, Model model){
+        fileMapper.delete(fileId);
+        List<Files> filesList = fileMapper.findAllFiles();
+        model.addAttribute("filesList", filesList);
+        model.addAttribute("deleteSuccess", true);
         return "home";
     }
 }
