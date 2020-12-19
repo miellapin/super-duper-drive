@@ -1,9 +1,11 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 import com.udacity.jwdnd.course1.cloudstorage.entity.Files;
+import com.udacity.jwdnd.course1.cloudstorage.entity.Notes;
 import com.udacity.jwdnd.course1.cloudstorage.entity.Users;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.FileMapper;
 import com.udacity.jwdnd.course1.cloudstorage.services.FileService;
+import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
 import org.apache.commons.io.IOUtils;
 import org.springframework.http.MediaType;
@@ -11,12 +13,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
-import java.util.logging.Logger;
 
 @Controller
 @RequestMapping("/home")
@@ -25,21 +26,18 @@ public class HomeController {
     private final FileService fileService;
     private final UserService userService;
     private final FileMapper fileMapper;
+    private final NoteService noteService;
 
-    public HomeController(FileService fileService, UserService userService, FileMapper fileMapper) {
+    public HomeController(FileService fileService, UserService userService, FileMapper fileMapper, NoteService noteService) {
         this.fileService = fileService;
         this.userService = userService;
         this.fileMapper = fileMapper;
+        this.noteService = noteService;
     }
 
     @GetMapping
     public String getHome(Model model) {
-        List<Files> filesList = fileMapper.findAllFiles();
-        if(filesList.isEmpty()) {
-            model.addAttribute("noFiles", false);
-            return "home";
-        }
-        model.addAttribute("filesList", filesList);
+        getAllItems(model);
         return "home";
     }
 
@@ -59,13 +57,11 @@ public class HomeController {
             else {
                 model.addAttribute("uploadFileError", errorMessage);
             }
-            List<Files> filesList = fileMapper.findAllFiles();
-            model.addAttribute("filesList", filesList);
+            getAllItems(model);
             return "home";
         }
         errorMessage = "Files with identical names cannot be uploaded!";
-        List<Files> filesList = fileMapper.findAllFiles();
-        model.addAttribute("filesList", filesList);
+        getAllItems(model);
         model.addAttribute("uploadFileSuccess", false);
         model.addAttribute("uploadFileError", errorMessage);
         return "home";
@@ -73,8 +69,9 @@ public class HomeController {
 
     @GetMapping(value = "/view/{fileId}",
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public @ResponseBody byte[] getFile(@PathVariable("fileId") Integer fileId) throws IOException{
+    public @ResponseBody byte[] getFile(@PathVariable("fileId") Integer fileId, Model model) throws IOException{
         try {
+            getAllItems(model);
             Files downloadedFile = fileMapper.findFile(fileId);
             return IOUtils.toByteArray(downloadedFile.getFiledata());
         }
@@ -89,6 +86,32 @@ public class HomeController {
         List<Files> filesList = fileMapper.findAllFiles();
         model.addAttribute("filesList", filesList);
         model.addAttribute("deleteSuccess", true);
+        getAllItems(model);
         return "home";
+    }
+
+    @PostMapping(value = "/create/note")
+    public String createNote(@ModelAttribute("note") Notes note, Model model,
+                             Principal principal) {
+        Users user = userService.getUserByUsername(principal.getName());
+        note.setUserid(user.getUserid());
+        try {
+            noteService.addNote(note);
+            model.addAttribute("noteSuccess", true);
+            model.addAttribute("noteSuccessMessage", "New note added !");
+        }
+        catch (Exception e) {
+            model.addAttribute("noteError", true);
+            model.addAttribute("noteErrorMessage", "Cannot find Note" + e.getMessage());
+        }
+        getAllItems(model);
+        return "home";
+    }
+
+    public void getAllItems(Model model) {
+        List<Files> filesList = fileMapper.findAllFiles();
+        List<Notes> noteList = noteService.getAllNotes();
+        model.addAttribute("noteList", noteList);
+        model.addAttribute("filesList", filesList);
     }
 }
