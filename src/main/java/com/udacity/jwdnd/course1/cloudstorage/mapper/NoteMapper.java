@@ -1,10 +1,7 @@
 package com.udacity.jwdnd.course1.cloudstorage.mapper;
 
 import com.udacity.jwdnd.course1.cloudstorage.entity.Notes;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -23,4 +20,7 @@ public interface NoteMapper {
 
     @Select("SELECT * FROM NOTES")
     List<Notes> findAllNotes();
+
+    @Delete("DELETE FROM NOTES WHERE noteid = #{noteid}")
+    void delete(Integer noteid);
 }

@@ -13,7 +13,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -80,7 +79,7 @@ public class HomeController {
         }
     }
 
-    @GetMapping(value = "/delete/{fileId}")
+    @GetMapping(value = "/delete/file/{fileId}")
     public String deleteFile(@PathVariable("fileId") Integer fileId, Model model){
         fileMapper.delete(fileId);
         List<Files> filesList = fileMapper.findAllFiles();
@@ -104,6 +103,14 @@ public class HomeController {
             model.addAttribute("noteError", true);
             model.addAttribute("noteErrorMessage", "Cannot find Note" + e.getMessage());
         }
+        getAllItems(model);
+        return "home";
+    }
+
+    @GetMapping(value = "/delete/note/{noteid}")
+    public String deleteNote(@PathVariable("noteid") Integer noteid, Model model){
+        noteService.deleteNote(noteid);
+        model.addAttribute("noteDeleteSuccess", true);
         getAllItems(model);
         return "home";
     }
