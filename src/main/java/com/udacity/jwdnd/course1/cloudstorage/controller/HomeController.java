@@ -95,9 +95,16 @@ public class HomeController {
         Users user = userService.getUserByUsername(principal.getName());
         note.setUserid(user.getUserid());
         try {
+            if(note.getNoteid() != null) {
+                noteService.updateNote(note);
+                model.addAttribute("noteUpdateSuccess", true);
+                model.addAttribute("noteUpdateSuccessMessage", "The note has been updated!");
+                getAllItems(model);
+                return "home";
+            }
             noteService.addNote(note);
             model.addAttribute("noteSuccess", true);
-            model.addAttribute("noteSuccessMessage", "New note added !");
+            model.addAttribute("noteSuccessMessage", "New note added!");
         }
         catch (Exception e) {
             model.addAttribute("noteError", true);
