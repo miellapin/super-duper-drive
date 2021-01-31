@@ -1,9 +1,11 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
+import com.udacity.jwdnd.course1.cloudstorage.entity.Credentials;
 import com.udacity.jwdnd.course1.cloudstorage.entity.Files;
 import com.udacity.jwdnd.course1.cloudstorage.entity.Notes;
 import com.udacity.jwdnd.course1.cloudstorage.entity.Users;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.FileMapper;
+import com.udacity.jwdnd.course1.cloudstorage.services.CredentialService;
 import com.udacity.jwdnd.course1.cloudstorage.services.FileService;
 import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
@@ -26,12 +28,14 @@ public class HomeController {
     private final UserService userService;
     private final FileMapper fileMapper;
     private final NoteService noteService;
+    private final CredentialService credentialService;
 
-    public HomeController(FileService fileService, UserService userService, FileMapper fileMapper, NoteService noteService) {
+    public HomeController(FileService fileService, UserService userService, FileMapper fileMapper, NoteService noteService, CredentialService credentialService) {
         this.fileService = fileService;
         this.userService = userService;
         this.fileMapper = fileMapper;
         this.noteService = noteService;
+        this.credentialService = credentialService;
     }
 
     @GetMapping
@@ -122,10 +126,39 @@ public class HomeController {
         return "home";
     }
 
+    @PostMapping(value = "/create/credential")
+    public String createNote(@ModelAttribute("credential") Credentials credential, Model model,
+                             Principal principal) {
+        Users user = userService.getUserByUsername(principal.getName());
+        credential.setUserid(user.getUserid());
+        credential.setUsername(user.getUsername());
+        try {
+            credentialService.addCredential(credential);
+            model.addAttribute("credentialSuccess", true);
+            model.addAttribute("credentialSuccessMessage", "New credential added!");
+        }
+        catch (Exception e) {
+            model.addAttribute("credentialError", true);
+            model.addAttribute("credentialErrorMessage", "Cannot find Credential" + e.getMessage());
+        }
+        getAllItems(model);
+        return "home";
+    }
+
+    @GetMapping(value = "/delete/credential/{credentialid}")
+    public String deleteCredential(@PathVariable("credentialid") Integer credentialid, Model model){
+        credentialService.deleteCredential(credentialid);
+        model.addAttribute("credentialDeleteSuccess", true);
+        getAllItems(model);
+        return "home";
+    }
+
     public void getAllItems(Model model) {
         List<Files> filesList = fileMapper.findAllFiles();
         List<Notes> noteList = noteService.getAllNotes();
+        List<Credentials> credentialsList = credentialService.getAllCredentials();
         model.addAttribute("noteList", noteList);
         model.addAttribute("filesList", filesList);
+        model.addAttribute("credentialsList", credentialsList);
     }
 }
