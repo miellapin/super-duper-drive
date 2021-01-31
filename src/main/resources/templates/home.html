@@ -141,9 +141,12 @@
                         </div>
                     </div>
                     <div class="tab-pane fade" id="nav-credentials" role="tabpanel" aria-labelledby="nav-credentials-tab">
-                        <div id="successNote-msg" th:if="${credentialSuccess}" class="alert alert-dark col-sm-12" th:text="${credentialSuccessMessage}">
+                        <div id="successCredential" th:if="${credentialSuccess}" class="alert alert-dark col-sm-12" th:text="${credentialSuccessMessage}">
                         </div>
-                        <div id="failNote-msg" th:if="${credentialError}" class="alert alert-dark col-sm-12" th:text="${credentialErrorMessage}">
+                        <div id="failCredential" th:if="${credentialError}" class="alert alert-dark col-sm-12" th:text="${credentialErrorMessage}">
+                            -----
+                        </div>
+                        <div id="updateCredential" th:if="${credentialUpdateSuccess}" class="alert alert-dark col-sm-12" th:text="${credentialUpdateSuccessMessage}">
                             -----
                         </div>
                         <div id="successCredential-delete-msg" th:if="${credentialDeleteSuccess}" class="alert alert-dark col-sm-12">
@@ -167,8 +170,8 @@
                                 <tr th:each="credentialItem : ${credentialsList}">
                                     <td>
                                         <button type="button" class="btn btn-success"
-                                                th:attr="data-id=${credentialItem.credentialid}, data-url=${credentialItem.url}, data-username=${credentialItem.username}, data-password=${credentialItem.password}"
-                                                th:onclick="showNoteModal(this.getAttribute('data-id'), this.getAttribute('data-url'), this.getAttribute('data-username'), this.getAttribute('data-password'));">Edit</button>
+                                                th:attr="credential-id=${credentialItem.credentialid}, credential-url=${credentialItem.url}, credential-username=${credentialItem.username}, credential-password=${credentialItem.password}"
+                                                th:onclick="showCredentialModal(this.getAttribute('credential-id'), this.getAttribute('credential-url'), this.getAttribute('credential-username'), this.getAttribute('credential-password'));">Edit</button>
                                         <a class="btn btn-danger" th:href="@{/home/delete/credential/{id}(id = ${credentialItem.credentialid})}">Delete</a>
                                     </td>
                                     <th scope="row" th:text="${credentialItem.url}">Example Credential URL</th>
@@ -190,17 +193,17 @@
                                     </div>
                                     <div class="modal-body">
                                         <form action="#" method="POST" th:action="@{/home/create/credential}" th:object="${credential}">
-                                            <input type="hidden" name="credentialId" id="credential-id">
+                                            <input type="hidden" name="credentialid" id="credential-id">
                                             <div class="form-group">
-                                                <label for="note-title" class="col-form-label">URL</label>
+                                                <label for="credential-url" class="col-form-label">URL</label>
                                                 <input type="text" name= "url" class="form-control" id="credential-url" maxlength="100" required>
                                             </div>
                                             <div class="form-group">
-                                                <label for="note-title" class="col-form-label">Username</label>
+                                                <label for="credential-username" class="col-form-label">Username</label>
                                                 <input type="text" name= "username" class="form-control" id="credential-username" maxlength="30" required>
                                             </div>
                                             <div class="form-group">
-                                                <label for="note-title" class="col-form-label">Password</label>
+                                                <label for="credential-password" class="col-form-label">Password</label>
                                                 <input type="text" name= "password" class="form-control" id="credential-password" maxlength="30" required>
                                             </div>
                                             <button id="credentialSubmit" type="submit" class="d-none"></button>

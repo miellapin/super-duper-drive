@@ -127,12 +127,18 @@ public class HomeController {
     }
 
     @PostMapping(value = "/create/credential")
-    public String createNote(@ModelAttribute("credential") Credentials credential, Model model,
+    public String createCredential(@ModelAttribute("credential") Credentials credential, Model model,
                              Principal principal) {
         Users user = userService.getUserByUsername(principal.getName());
         credential.setUserid(user.getUserid());
-        credential.setUsername(user.getUsername());
         try {
+            if(credential.getCredentialid() != null) {
+                credentialService.updateCredential(credential);
+                model.addAttribute("credentialUpdateSuccess", true);
+                model.addAttribute("credentialUpdateSuccessMessage", "The credential has been updated!");
+                getAllItems(model);
+                return "home";
+            }
             credentialService.addCredential(credential);
             model.addAttribute("credentialSuccess", true);
             model.addAttribute("credentialSuccessMessage", "New credential added!");
